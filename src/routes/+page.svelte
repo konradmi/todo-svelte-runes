@@ -1,29 +1,16 @@
 <script lang='ts'>
   type Filter = 'all' | 'active' | 'completed'
 
-  class Todo {
-    text = $state('')
-    done = $state(false)
-    id = crypto.getRandomValues(new Uint32Array(1))[0]
-    
-    constructor(text: string, done: boolean) {
-      this.text = text
-      this.done = done
-    }
-
-    toJSON() {
-      return {
-        text: this.text,
-        done: this.done,
-        id: this.id,
-      }
-    }
+  type Todo = {
+    text: string
+    done: boolean
+    id: number
   }
 
-  let todos = $state<Todo[]>([
-    new Todo('TODO 1', false),
-    new Todo('TODO 2', true),
-    new Todo('TODO 3', false),
+  let todos = $state([
+    { text: 'TODO 1', done: false, id: crypto.getRandomValues(new Uint32Array(1))[0] },
+    { text: 'TODO 2', done: true, id: crypto.getRandomValues(new Uint32Array(1))[0] },
+    { text: 'TODO 3', done: false, id: crypto.getRandomValues(new Uint32Array(1))[0] },
   ])
 
   let filter = $state<Filter>('all')
@@ -31,8 +18,8 @@
   const addTodo = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       const target  = e.target as HTMLInputElement
-      // todos = [...todos, new Todo(target.value, false)]
-      todos = [...todos, { text: target.value, done: false, id: crypto.getRandomValues(new Uint32Array(1))[0] } as Todo]
+      todos = [...todos, { text: target.value, done: false, id: crypto.getRandomValues(new Uint32Array(1))[0] }]
+
       target.value = ''
     }
   }
@@ -57,10 +44,16 @@
     }
   }
 
+  const calculateNumberOfTodos = (todos: Todo[]) => {
+    console.log('calculating')
+    return todos.length
+  }
+
   let filteredTodos = $derived(filterTodos(todos, filter))
 </script>
 
 <div class='page'>
+  <div>{`Number of todos: ${calculateNumberOfTodos(todos)}`}</div>
   <div class='filters'>
     <button onclick={() => filter = 'all'}>All</button>
     <button onclick={() => filter = 'active'}>Active</button>
